@@ -1,0 +1,24 @@
+main{
+    overflow:hidden;
+    width:100%;
+    height:100%;
+}/*Queremos bloquear la barra de scroll para dispositivos movíles.*/
+#balls{
+    position:fixed;
+    top:0;
+    left:0;
+}
+#pause_play_game{
+    position:absolute;
+    top:0;
+    left:20px;
+    border-radius:100%;
+    background-color:rgba(150,150,150,0.7);/*El boton debe ser transparente. Controlaremos su presentacion con CSS solamente.*/
+}
+#pause_play_game:hover{
+    background-color:rgba(150,150,150,1);
+/*El boton no debe ser transparente cuando el mous este en cima. Controlaremos su presentacion con CSS solamente.*/
+}
+#play,#reset{
+    display:none;
+}
