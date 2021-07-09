@@ -1,0 +1,188 @@
+<!--Updated for bugs.-->
+<!doctype html>
+<html lang="es"><!--TODO hacer: Hacer que esta apricación detecte el evento de cambio de vertical a orizontal en dispocitivos moviles y que llame a la funcion main.-->
+    <head>
+        <title>titulo</title>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <link rel="stylesheet" href="ping pong.css"/>
+        <style>
+        </style>
+    </head>
+    <body onload="main()">
+        <main id="main">
+            <canvas id="contenedor-de-bloques">Navigator no support.</canvas>
+            <svg id="balls" width="30px" height="30px">
+                <circle id="ball" r="10" cx="15" cy="15" fill="red"/>
+                <rect id="personaje" x="0" y="0" width="0" height="0" fill="orange" stroke="black"/>
+            </svg>
+            <button type="button" id="pause_play_game">
+                <span id="pause" onclick="pause(this,D('play') );"> | | </span>
+                <span id="play" onclick="play(this,D('pause') );"> |&gt; </span>
+                <span id="reset" onclick="resetear(this,D('pause') );">reset</span>
+            </button>
+        </main>
+        <script src="ping pong.js"></script>
+        <script>
+            "use estrict";
+            
+            const width=50,height=30,r=10;
+            //En Chrome la velocidad para el juego es rápida, pero en Mozilla Firefox la velocidad es lenta o eso es en mi navegador.
+            //                    if chrome entonces velocidad normal, else velocidad aumentada
+            const speed_of_ball=( true )? 1 : (Math.PI*0.1)+1;/*TODO HACER: Hacer que esto identifique en veerdad el navegador.*/
+            var block=[(screen.height/2)/height];
+            var block_deleteds=null;//Sera nuestro contador para ver si ya eliminamos todos los bloques.
+            var person=new per(screen.width/2,screen.height/1.5,width,height,3,D("personaje") );
+            //new blocks(screen.width/2,screen.height/1.5,width,height,3,null)/*Personaje principal.*/
+            var ball=new balls(parseInt(Math.random()*screen.width),screen.height/2,r,true,D("ball") );
+            var ctx=D("contenedor-de-bloques");/**Nuestro contenedor para los bloques.*/
+            var svg=D("balls");
+            if (!(ctx=init_canvas(ctx) ))
+                console.error("Su navegador no acepta canvas, no puede jugar este juego.");
+            
+            function movePer(x){
+                person.x=parseInt(x);
+                person.move();
+            }/*Si ocurre un evento que nos interesa*/
+            function pause(this_,inline){
+                this_.style.display="none";
+                inline.style.display="inline";
+                clearInterval(mensajes.set)
+            }
+            function play(this_,inline){
+                this_.style.display="none";
+                inline.style.display="inline";
+                juego(false);
+            }
+            function resetear(this_,inline){//[1]{
+                if(mensajes.reinicio){//        Esto evitará que cuando el usuario se niegue a reiniciar el juego falle porque se puso la funcion equivocada en este button.
+                //                            }
+                    this_.style.display="none";
+                    inline.style.display="inline";
+                }else{//Si no quiso reinicio y presiona el botón otra ves, entonces volvemos a preguntar.
+                    reset();
+                }
+            }
+            function main(){/*Creamos los objetos. Nota: Solo necesitamos que esta función se cargué una ves por inicio del navegador.*/
+                svg.setAttribute("width",screen.width+"px");
+                svg.setAttribute("height",screen.height+"px");
+                person.change();
+                person.move();//Actualizamos los personajes-
+                ball.dir={"x":parseInt(Math.random()*1.5),"y":false};
+                //Events PC:
+                document.body.onmousemove= e =>{
+                    movePer(e.clientX);
+                }
+                //Events movil:
+                document.body.ontouchmove= e =>{
+                    movePer(e.touches[0].pageX);//Si pongo clientX no me dara resultado.
+                }
+                //Eventos util en movil y PC
+                document.body.onclick= e =>{
+                    movePer(e.clientX);
+                }/*Si el usuario hiso click en la pantalla movemos al personaje a la posición dada.*/
+                for (var y=0;y*height<screen.height/3;y++){
+                    block[y]=[screen.width/width];//En modo estricto se debe declarar los arrays multidimensionales así.
+                    for(var x=0;x*width<screen.width-width;x++){
+                        block[y][x]=new blocks(x*width,y*height,width-10,height-10,true,ctx);
+                        block[y][x].draw("blue","black");//Dibujamos los bloques.
+                    }
+                }
+                block_deleteds=block.length*block[0].length;
+                juego();
+            }
+            function juego(reiniciar=true){
+                if(reiniciar)//If not is play
+                    person.life=3;//Vida del jugador
+                
+                function moveAll(set){
+                    if(ball.x<0)
+                        ball.dir["x"]=true;
+                    if(ball.x>screen.width)
+                        ball.dir["x"]=false;
+                    
+                    if(ball.y<0)
+                        ball.dir["y"]=true;
+                    //Si agregamos esta línea \|/ Le quitaremos toda la dificultad al juego.
+                    //if(ball.y>screen.height/2.5)//Por lo que la unica ubtilidad que veo, es para debug.
+                        //ball.dir['y']=false;
+                    
+                    ball.x=(ball.dir["x"])?ball.x+1:ball.x-1;
+                    ball.y=(ball.dir["y"])?ball.y+1:ball.y-1;
+                    
+                    if(
+                            person.x < ball.x+ball.r && 
+                            person.x+person.w > ball.x &&
+                            ball.y > person.y && 
+                            ball.y < person.y+person.h
+                        )
+                        ball.dir["y"]=false;
+                    if( ball.y > person.y + (person.h+10) ){
+                        person.life--;
+                        ball.y=screen.availHeight/2;
+                    }
+                    if( ball.y < (screen.height/3)+height ){/*Si esta abajo de todos los bloques entonces saltamos el bucle. No es 100% necesario pero si aumenta un poco el rendimiento.*/
+                        for (var y=0;y < block.length;y++){
+                            if( ball.y+ball.r > block[y][0].y-block[y][0].h && ball.y < block[y][0].y+block[y][0].h ){//Vemos si la pelota esta en una posición y que nos interesa.
+                                for(var x=0;x < block[y].length;x++){
+                                    if (!block[y][x].life){//Si ya no existe entonces
+                                        continue;//continuamos con el bucle.
+                                    }
+                                    if (
+                                        block[y][x].x+block[y][x].w > ball.x+ball.r &&
+                                        block[y][x].x < ball.x + ball.r
+                                    ){//Si esta dentro del rango x indicado. No te preocupes por el rango y, porque afuera del bucle x ya vimos si esta en ese rango.
+                                        ball.dir["y"]=(ball.dir["y"])?false:true;
+                                        block[y][x].clear();
+                                        block[y][x].life=false;
+                                        block_deleteds--;//Para ver si ya ganamos.
+                                        SOUND(250,0.15);
+                                        SOUND(350,0.15);
+                                        SOUND(450,0.15);
+                                        SOUND(500,0.05);
+                                        
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(!person.life){//GAME OVER.
+                        clearInterval(set);
+                        D("reset").style.display="inline";//No son necesario pero lo pongo por seguridad.
+                        D("pause").style.display="none";
+                        D("play").style.display="none";
+                        
+                        reset();//Preguntamos y si quiere reiniciar el juego.
+                        return 0;
+                    }
+                    if (!block_deleteds){//YOU WIN.
+                        alert("You Win");
+                        clearInterval(set);
+                        D("reset").style.display="inline";//No son necesario pero lo pongo por seguridad.\|/
+                        D("pause").style.display="none";
+                        D("play").style.display="none";
+                                                        //                                                 /|\
+                        reset();
+                    }
+                    ball.move();//Movemos la pelota.
+                }
+                /*mensajes.set=setInterval() for clearInterval(set);*/
+                mensajes.set=setInterval(function(){
+                    moveAll(mensajes.set);/*Lo encerramos dentro de una función para pasarle un argumento.*/
+                });
+            }
+            /*Nota llamo a la funcion por su nombre en vez de llamarla una vez: (function juego(){})();
+            Porque el modo estricto eliminará la funcion juego cuando termine de ejecutarse.*/
+            function reset(){
+                if(confirm("Quieres reiniciar el Juego.")){
+                    mensajes.reinicio=true;
+                    resetear(D('reset') ,D('pause') );
+                    main();/*Reiniciamos el Juego.*/
+                }else{
+                    mensajes.reinicio=false;
+                }
+            }
+        </script>
+    </body>
+</html>
