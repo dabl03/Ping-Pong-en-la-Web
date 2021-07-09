@@ -1,188 +1,181 @@
-<!--Updated for bugs.-->
+<!--Update codes for bugs.-->
 <!doctype html>
-<html lang="es"><!--TODO hacer: Hacer que esta apricación detecte el evento de cambio de vertical a orizontal en dispocitivos moviles y que llame a la funcion main.-->
+<html lang="es">
     <head>
-        <title>titulo</title>
+        <title>Juego_con_html_css_js</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <link rel="stylesheet" href="ping pong.css"/>
-        <style>
-        </style>
-    </head>
-    <body onload="main()">
-        <main id="main">
-            <canvas id="contenedor-de-bloques">Navigator no support.</canvas>
-            <svg id="balls" width="30px" height="30px">
-                <circle id="ball" r="10" cx="15" cy="15" fill="red"/>
-                <rect id="personaje" x="0" y="0" width="0" height="0" fill="orange" stroke="black"/>
-            </svg>
-            <button type="button" id="pause_play_game">
-                <span id="pause" onclick="pause(this,D('play') );"> | | </span>
-                <span id="play" onclick="play(this,D('pause') );"> |&gt; </span>
-                <span id="reset" onclick="resetear(this,D('pause') );">reset</span>
-            </button>
-        </main>
-        <script src="ping pong.js"></script>
         <script>
-            "use estrict";
             
-            const width=50,height=30,r=10;
-            //En Chrome la velocidad para el juego es rápida, pero en Mozilla Firefox la velocidad es lenta o eso es en mi navegador.
-            //                    if chrome entonces velocidad normal, else velocidad aumentada
-            const speed_of_ball=( true )? 1 : (Math.PI*0.1)+1;/*TODO HACER: Hacer que esto identifique en veerdad el navegador.*/
-            var block=[(screen.height/2)/height];
-            var block_deleteds=null;//Sera nuestro contador para ver si ya eliminamos todos los bloques.
-            var person=new per(screen.width/2,screen.height/1.5,width,height,3,D("personaje") );
-            //new blocks(screen.width/2,screen.height/1.5,width,height,3,null)/*Personaje principal.*/
-            var ball=new balls(parseInt(Math.random()*screen.width),screen.height/2,r,true,D("ball") );
-            var ctx=D("contenedor-de-bloques");/**Nuestro contenedor para los bloques.*/
-            var svg=D("balls");
-            if (!(ctx=init_canvas(ctx) ))
-                console.error("Su navegador no acepta canvas, no puede jugar este juego.");
+        </script>
+    </head>
+    <body onload="main();">
+        <fieldset>
+            <div id="dibujo">
+                1
+            </div>
+            <div id="div2">
+                2
+            </div>
+            <div id="dib1">
+                <span id="dib3">
+                    L
+                </span>
+            </div>
+            <div id="medio"></div>
+            <div id="div3"><span id="text-pause" style="position:absolute;left:-27px;top:-20;font-size:2em;display:none;">pausa</span></div>
+            <p style="position:absolute;left:140px;">
+                2:4
+            </p>
+        </fieldset>
+        <button type="button" id="boton1" onclick="jugador(0)" style="width:110px;height:80px;">
+            1-Arriba.
+        </button>
+        <button type="button" onclick="jugador(1)" id="boton2" style="width:110px;height:80px;">
+            2-Arriba
+        </button>
+        <button type="button" id="pausa" onclick="pausa(this,set)">
+            Pausa
+        </button>
+        <button type="button" id="Reinicio" onclick="if(confirm('Seguro que deseas reiniciar todo.'))reinicio()">
+            <b id="b">
+                Reiniciar
+            </b>
+        </button>
+        <table>
+            <tr>
+                <td>
+                    <label for="rapido">
+                        rapido
+                    </label>
+                </td>
+                <td>
+                    <label for="lento">
+                        lento
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="radio" id="rapido" onclick="times=-10;if(!if_pausa){vel(times,'R');}" name="velo"/>
+                </td>
+                <td>
+                    <input type="radio" id="lento" onclick="times=10;if(!if_pausa){vel(times,'L');}" name="velo" checked/>
+                </td>
+            </tr>
+        </table>
+        <script>
+            /*Para variables*/
+            "uses strict";
             
-            function movePer(x){
-                person.x=parseInt(x);
-                person.move();
-            }/*Si ocurre un evento que nos interesa*/
-            function pause(this_,inline){
-                this_.style.display="none";
-                inline.style.display="inline";
-                clearInterval(mensajes.set)
+            var pers=[
+                //Solo es necesario dos variables.
+                new dim(undefined,1,undefined,undefined,D("dibujo") ),/*Rojo*/
+                new dim(undefined,1,undefined,undefined,D("div2") )/*Azul.*/
+            ];
+            var p=document.querySelector("p");
+            var ball=new dim(35,38,undefined,undefined,D("dib3") );
+            var set;
+            var game;
+            var times=10;//Lento.
+            var if_pausa=false;
+            function vel(speed,char){
+                clearInterval(set);
+                sets(speed);
+                ball.obj.innerHTML=char;
+            }/*Recuerda puedes hacer: ball.dir para reemplazar dirs.*/
+            function sets(x){
+                set=setInterval(game,x);
             }
-            function play(this_,inline){
-                this_.style.display="none";
-                inline.style.display="inline";
-                juego(false);
+            function main(){//Solo incluyo esta funcion por costumbre con C. Realmente no es necesaria.
+                reinicio();//Iniciamos todas la variables globales.
+                game=function(){
+                    subir();
+                    der();
+                    control();
+                    ball.move();
+                    p.innerHTML="<b style='color:red;'>"+pers[0].pto+"</b>"+":"+"<b style='color:blue;'>"+pers[1].pto+"</b>";
+                }
+                sets(times);//Iniciamos el juego.
+            }//Sera llamada por body;
+            
+            function subir(){
+                if ( ball.y < -110 )
+                    ball.dirs['y']=true;
+                else if( ball.y > 171 )
+                     ball.dirs['y']=false;
+                ball.y=( ball.dirs['y'] )?ball.y+1:ball.y-1;
             }
-            function resetear(this_,inline){//[1]{
-                if(mensajes.reinicio){//        Esto evitará que cuando el usuario se niegue a reiniciar el juego falle porque se puso la funcion equivocada en este button.
-                //                            }
-                    this_.style.display="none";
-                    inline.style.display="inline";
-                }else{//Si no quiso reinicio y presiona el botón otra ves, entonces volvemos a preguntar.
-                    reset();
+            
+            function der(){
+                ball.x=( ball.dirs['x'] )?ball.x+1:ball.x-1;
+                if ( ball.x < -100 || ball.x > 165){
+                    ball.x=30;
+                    ball.y=38;
+                    var i=(ball.x < -100)?1:0;
+                    ball.dirs['x']=i;
+                    pers[(i)?0:1].pto++;
+                    SOUND(300,0.05);
+                    SOUND(200,0.05);
+                    SOUND(500,0.05);
+                    SOUND(100,0.05);
                 }
             }
-            function main(){/*Creamos los objetos. Nota: Solo necesitamos que esta función se cargué una ves por inicio del navegador.*/
-                svg.setAttribute("width",screen.width+"px");
-                svg.setAttribute("height",screen.height+"px");
-                person.change();
-                person.move();//Actualizamos los personajes-
-                ball.dir={"x":parseInt(Math.random()*1.5),"y":false};
-                //Events PC:
-                document.body.onmousemove= e =>{
-                    movePer(e.clientX);
+            function control(){
+                ball.change_color( ( (ball.x > 2)?"red":"blue" ) );
+                const limite_1=ball.y+80;
+                const limite_2=ball.y+130;
+                if (
+                    ball.x< -76 &&
+                    pers[0].y > limite_1 &&
+                    pers[0].y < limite_2
+                ){
+                    ball.dirs['x']=1;
+                    SOUND(500,0.05);
+                    SOUND(450,0.05);
+                    SOUND(600,0.05);
                 }
-                //Events movil:
-                document.body.ontouchmove= e =>{
-                    movePer(e.touches[0].pageX);//Si pongo clientX no me dara resultado.
+                if (
+                    ball.x>145 &&
+                    pers[1].y >limite_1 &&
+                    pers[1].y < limite_2
+                ){
+                    ball.dirs['x']=0;
+                    SOUND(500,0.05);
+                    SOUND(450,0.05);
+                    SOUND(600,0.05);
                 }
-                //Eventos util en movil y PC
-                document.body.onclick= e =>{
-                    movePer(e.clientX);
-                }/*Si el usuario hiso click en la pantalla movemos al personaje a la posición dada.*/
-                for (var y=0;y*height<screen.height/3;y++){
-                    block[y]=[screen.width/width];//En modo estricto se debe declarar los arrays multidimensionales así.
-                    for(var x=0;x*width<screen.width-width;x++){
-                        block[y][x]=new blocks(x*width,y*height,width-10,height-10,true,ctx);
-                        block[y][x].draw("blue","black");//Dibujamos los bloques.
-                    }
-                }
-                block_deleteds=block.length*block[0].length;
-                juego();
+            }/*Optimizar mas este codigo.*/
+            //Estas funciones serán llamada por uno de los botones. Claro los botones no van a llamar a todas las funciones, pero si a una de ellas.
+            function reinicio(){
+                pers[0].pto=0;
+                pers[1].pto=0;
+                ball.x=30;
+                ball.y=38;
+                ball.dirs={'x':random(1),'y':random(1)};
             }
-            function juego(reiniciar=true){
-                if(reiniciar)//If not is play
-                    person.life=3;//Vida del jugador
-                
-                function moveAll(set){
-                    if(ball.x<0)
-                        ball.dir["x"]=true;
-                    if(ball.x>screen.width)
-                        ball.dir["x"]=false;
-                    
-                    if(ball.y<0)
-                        ball.dir["y"]=true;
-                    //Si agregamos esta línea \|/ Le quitaremos toda la dificultad al juego.
-                    //if(ball.y>screen.height/2.5)//Por lo que la unica ubtilidad que veo, es para debug.
-                        //ball.dir['y']=false;
-                    
-                    ball.x=(ball.dir["x"])?ball.x+1:ball.x-1;
-                    ball.y=(ball.dir["y"])?ball.y+1:ball.y-1;
-                    
-                    if(
-                            person.x < ball.x+ball.r && 
-                            person.x+person.w > ball.x &&
-                            ball.y > person.y && 
-                            ball.y < person.y+person.h
-                        )
-                        ball.dir["y"]=false;
-                    if( ball.y > person.y + (person.h+10) ){
-                        person.life--;
-                        ball.y=screen.availHeight/2;
-                    }
-                    if( ball.y < (screen.height/3)+height ){/*Si esta abajo de todos los bloques entonces saltamos el bucle. No es 100% necesario pero si aumenta un poco el rendimiento.*/
-                        for (var y=0;y < block.length;y++){
-                            if( ball.y+ball.r > block[y][0].y-block[y][0].h && ball.y < block[y][0].y+block[y][0].h ){//Vemos si la pelota esta en una posición y que nos interesa.
-                                for(var x=0;x < block[y].length;x++){
-                                    if (!block[y][x].life){//Si ya no existe entonces
-                                        continue;//continuamos con el bucle.
-                                    }
-                                    if (
-                                        block[y][x].x+block[y][x].w > ball.x+ball.r &&
-                                        block[y][x].x < ball.x + ball.r
-                                    ){//Si esta dentro del rango x indicado. No te preocupes por el rango y, porque afuera del bucle x ya vimos si esta en ese rango.
-                                        ball.dir["y"]=(ball.dir["y"])?false:true;
-                                        block[y][x].clear();
-                                        block[y][x].life=false;
-                                        block_deleteds--;//Para ver si ya ganamos.
-                                        SOUND(250,0.15);
-                                        SOUND(350,0.15);
-                                        SOUND(450,0.15);
-                                        SOUND(500,0.05);
-                                        
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if(!person.life){//GAME OVER.
-                        clearInterval(set);
-                        D("reset").style.display="inline";//No son necesario pero lo pongo por seguridad.
-                        D("pause").style.display="none";
-                        D("play").style.display="none";
-                        
-                        reset();//Preguntamos y si quiere reiniciar el juego.
-                        return 0;
-                    }
-                    if (!block_deleteds){//YOU WIN.
-                        alert("You Win");
-                        clearInterval(set);
-                        D("reset").style.display="inline";//No son necesario pero lo pongo por seguridad.\|/
-                        D("pause").style.display="none";
-                        D("play").style.display="none";
-                                                        //                                                 /|\
-                        reset();
-                    }
-                    ball.move();//Movemos la pelota.
-                }
-                /*mensajes.set=setInterval() for clearInterval(set);*/
-                mensajes.set=setInterval(function(){
-                    moveAll(mensajes.set);/*Lo encerramos dentro de una función para pasarle un argumento.*/
-                });
+            function pausa(button,set){
+                clearInterval(set);
+                button.innerHTML="resumen";
+                button.setAttribute("onclick","set=resumen(this,times);");
+                if_pausa=true;
+                D("text-pause").style.display="inline";
             }
-            /*Nota llamo a la funcion por su nombre en vez de llamarla una vez: (function juego(){})();
-            Porque el modo estricto eliminará la funcion juego cuando termine de ejecutarse.*/
-            function reset(){
-                if(confirm("Quieres reiniciar el Juego.")){
-                    mensajes.reinicio=true;
-                    resetear(D('reset') ,D('pause') );
-                    main();/*Reiniciamos el Juego.*/
-                }else{
-                    mensajes.reinicio=false;
-                }
+            function resumen(button,time){
+                set=setInterval(game,time);
+                button.innerHTML="pausa";
+                button.setAttribute("onclick","pausa(this,set);");
+                if_pausa=false;
+                D("text-pause").style.display="none";
+                return set;
             }
+            function jugador(i){
+                //Si el personaje actual sobre pasa al borde: entonces lo ponemos al final. 
+                pers[i].y=( pers[i].y <1 )? 265 : pers[i].y-50;
+                pers[i].obj.style.top=pers[i].y+"px";
+            }
+            
+            
         </script>
     </body>
 </html>
