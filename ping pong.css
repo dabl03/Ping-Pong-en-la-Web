@@ -1,24 +1,89 @@
-main{
-    overflow:hidden;
-    width:100%;
-    height:100%;
-}/*Queremos bloquear la barra de scroll para dispositivos movíles.*/
-#balls{
-    position:fixed;
-    top:0;
-    left:0;
+body{
+    background-color:black;
 }
-#pause_play_game{
+fieldset,div,#boton1,#boton2,#dib3,#pausa,#Reinicio,table{
     position:absolute;
-    top:0;
-    left:20px;
+}
+fieldset{
+    width:280px;
+    height:309px;
+    background-color:#90ff00;
+}
+div{
+    width:20px;
+    height:50px;
+    background-color:red;
+}
+#div2{
+    left:280px;
+    background-color:blue;
+}
+#div3{
+    width:10px;
+    height:10px;
+    border-radius:5px;
+    background-color:rgb(210,210,210);
+    position:absolute;
+    left:48.7%;
+    top:50%;
+}
+#boton1,#boton2{
+    top:410px;
+    -webkit-border-radius:10px;
+}
+#boton1{
+    background-color:red;
+}
+#boton2{
+    left:200px;
+    background-color:blue;
+}
+#medio{
+    background-color:gray;
+    width:2px;
+    height:100%;
+    top:0%;
+    left:50%;
+}
+#dib1{
+    width:30%;
+    height:30%;
+    border-radius:50%;
+    top:35.5%;
+    left:35%;
+    background-color:#afff00;
+    border:2px solid gray;
+}
+#dib3{
+    width:30%;
+    height:30%;
+    top:38%;
+    left:35%;
     border-radius:100%;
-    background-color:rgba(150,150,150,0.7);/*El boton debe ser transparente. Controlaremos su presentacion con CSS solamente.*/
+    background-color:gray;
+  text-align:center;
 }
-#pause_play_game:hover{
-    background-color:rgba(150,150,150,1);
-/*El boton no debe ser transparente cuando el mous este en cima. Controlaremos su presentacion con CSS solamente.*/
+#pausa{
+    left:132px;
+  top:400px;
 }
-#play,#reset{
-    display:none;
+#Reinicio{
+    width:50px;
+    height:50px;
+    border-radius:25px;
+    left:250px;
+    top:350px;
+    background-color:yellow;
+}
+#b{
+    font-size:10px;
+}
+table{
+    top:340px;
+    color:white;
+    text-align:center;
+    border:2px solid white;
+}
+td{
+    border:2px solid white;
 }
