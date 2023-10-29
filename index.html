@@ -109,11 +109,11 @@
             function der(){
                 ball.x=( ball.dirs['x'] )?ball.x+1:ball.x-1;
                 if ( ball.x < -100 || ball.x > 165){
+                    let i=(ball.x < -100)?1:0;
                     ball.x=30;
                     ball.y=38;
-                    var i=(ball.x < -100)?1:0;
                     ball.dirs['x']=i;
-                    pers[(i)?0:1].pto++;
+                    pers[i].pto++;
                     SOUND(300,0.05);
                     SOUND(200,0.05);
                     SOUND(500,0.05);
