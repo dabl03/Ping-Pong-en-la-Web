@@ -1,22 +1,19 @@
 body{
     background-color:black;
 }
-fieldset,div,#boton1,#boton2,#dib3,#pausa,#Reinicio,table{
+fieldset,div,#boton1,#boton2,#ball,#pausa,#Reinicio,table{
     position:absolute;
 }
 fieldset{
-    width:280px;
-    height:309px;
     background-color:#90ff00;
+    display: block;
 }
-div{
-    width:20px;
-    height:50px;
+#gamer-red{
     background-color:red;
 }
-#div2{
-    left:280px;
+#gamer-blue{
     background-color:blue;
+    color:lightcyan;
 }
 #div3{
     width:10px;
@@ -45,23 +42,23 @@ div{
     top:0%;
     left:50%;
 }
-#dib1{
-    width:30%;
-    height:30%;
+#ball{
+    width:30px;
+    height:30px;
     border-radius:50%;
     top:35.5%;
     left:35%;
     background-color:#afff00;
     border:2px solid gray;
+    position: fixed;
+    text-align:center;
 }
-#dib3{
-    width:30%;
-    height:30%;
-    top:38%;
-    left:35%;
-    border-radius:100%;
-    background-color:gray;
-  text-align:center;
+#ball span{
+    color:lightgreen;
+    position:relative;
+    top:26%;
+    font-size:1em;
+    display:block;
 }
 #pausa{
     left:132px;

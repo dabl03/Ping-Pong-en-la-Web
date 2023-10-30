@@ -9,15 +9,15 @@
     </head>
     <body onload="main();">
         <script src="ping pong.js"></script>
-        <fieldset>
-            <div id="dibujo">
+        <fieldset id="canva-game">
+            <div id="gamer-red">
                 1
             </div>
-            <div id="div2">
+            <div id="gamer-blue">
                 2
             </div>
-            <div id="dib1">
-                <span id="dib3">
+            <div id="ball">
+                <span>
                     L
                 </span>
             </div>
@@ -27,13 +27,13 @@
                 2:4
             </p>
         </fieldset>
-        <button type="button" id="boton1" onclick="jugador(0)" style="width:110px;height:80px;">
+        <button type="button" id="boton1" onclick="jugador(0)" style="width:110px;height:80px;color:green;">
             1-Arriba.
         </button>
-        <button type="button" onclick="jugador(1)" id="boton2" style="width:110px;height:80px;">
+        <button type="button" onclick="jugador(1)" id="boton2" style="width:110px;height:80px;color:lightcyan;">
             2-Arriba
         </button>
-        <button type="button" id="pausa" onclick="pausa(this,set)">
+        <button type="button" id="pausa" onclick="pausa(this);">
             Pausa
         </button>
         <button type="button" id="Reinicio" onclick="if(confirm('Seguro que deseas reiniciar todo.'))reinicio()">
@@ -53,124 +53,143 @@
                         lento
                     </label>
                 </td>
+                <td>
+                    <label for="mute">
+                        mute
+                    </label>
+                </td>
             </tr>
             <tr>
                 <td>
-                    <input type="radio" id="rapido" onclick="times=-10;if(!if_pausa){vel(times,'R');}" name="velo"/>
+                    <input type="radio" id="rapido" onclick="change_speed('R');" name="velo"/>
                 </td>
                 <td>
-                    <input type="radio" id="lento" onclick="times=10;if(!if_pausa){vel(times,'L');}" name="velo" checked/>
+                    <input type="radio" id="lento" onclick="change_speed('L');" name="velo" checked/>
+                </td>
+                <td>
+                    <input type="checkbox" id="mute" onclick="if_sound=!if_sound"/>
                 </td>
             </tr>
         </table>
         <script>
             /*Para variables*/
             "uses strict";
-            
+            const TABLE_WIDTH=280;
+            const TABLE_HEIGHT=309;
+            const center_width=TABLE_WIDTH/2;
+            const center_height=TABLE_HEIGHT/2;
+            const gamer_width=regla_de_3(100,TABLE_WIDTH,5);
+            const gamer_height=regla_de_3(100,TABLE_HEIGHT,20);
+            const ball_width=regla_de_3(100,TABLE_WIDTH,9);
+            const ball_height=regla_de_3(100,TABLE_HEIGHT,9);
+            const gamer_center=gamer_width/2;
+            const bad_speed=90;
+            const good_speed=140;
             var pers=[
                 //Solo es necesario dos variables.
-                new dim(undefined,1,undefined,undefined,D("dibujo") ),/*Rojo*/
-                new dim(undefined,1,undefined,undefined,D("div2") )/*Azul.*/
+                new dim(gamer_width,center_height,gamer_width,gamer_height,D("gamer-red") ),/*Rojo*/
+                new dim(TABLE_WIDTH-gamer_width,center_height,gamer_width,gamer_height,D("gamer-blue") )/*Azul.*/
             ];
+            var times=0.01;//Lento.
             var p=document.querySelector("p");
-            var ball=new dim(35,38,undefined,undefined,D("dib3") );
+            var ball=new dim(center_width,center_height,ball_width,ball_height,D("ball"),times,bad_speed );
             var set;
             var game;
-            var times=10;//Lento.
             var if_pausa=false;
-            function vel(speed,char){
-                clearInterval(set);
-                sets(speed);
+            var if_sound=false;
+            function change_speed(char){
+                ball.change_dist(times,(char=='L')?bad_speed:good_speed)
                 ball.obj.innerHTML=char;
             }/*Recuerda puedes hacer: ball.dir para reemplazar dirs.*/
-            function sets(x){
-                set=setInterval(game,x);
-            }
             function main(){//Solo incluyo esta funcion por costumbre con C. Realmente no es necesaria.
+                let table=document.getElementById("canva-game");
+                table.style.width=TABLE_WIDTH+"px";
+                table.style.height=TABLE_HEIGHT+"px";
                 reinicio();//Iniciamos todas la variables globales.
                 game=function(){
+                    if (if_pausa)
+                        return;
                     subir();
                     der();
                     control();
                     ball.move();
-                    p.innerHTML="<b style='color:red;'>"+pers[0].pto+"</b>"+":"+"<b style='color:blue;'>"+pers[1].pto+"</b>";
                 }
-                sets(times);//Iniciamos el juego.
+                set=setInterval(game,times*1000);//Iniciamos el juego.
             }//Sera llamada por body;
             
             function subir(){
-                if ( ball.y < -110 )
+                if ( ball.y < 0 )
                     ball.dirs['y']=true;
-                else if( ball.y > 171 )
+                else if( ball.y > TABLE_HEIGHT-2 )
                      ball.dirs['y']=false;
-                ball.y=( ball.dirs['y'] )?ball.y+1:ball.y-1;
+                ball.y+=( ball.dirs['y'] )?ball.dist:-ball.dist;
             }
             
             function der(){
-                ball.x=( ball.dirs['x'] )?ball.x+1:ball.x-1;
-                if ( ball.x < -100 || ball.x > 165){
-                    let i=(ball.x < -100)?1:0;
-                    ball.x=30;
-                    ball.y=38;
+                ball.x+=( ball.dirs['x'] )?ball.dist:-ball.dist;
+                if ( ball.x < 0 || ball.x > TABLE_WIDTH){
+                    let i=(ball.x < 0)?1:0;
+                    ball.x=center_width;
+                    ball.y=center_height;
                     ball.dirs['x']=i;
                     pers[i].pto++;
-                    SOUND(300,0.05);
-                    SOUND(200,0.05);
-                    SOUND(500,0.05);
-                    SOUND(100,0.05);
+                    SOUND(300,0.05,if_sound);
+                    SOUND(200,0.05,if_sound);
+                    SOUND(500,0.05,if_sound);
+                    SOUND(100,0.05,if_sound);
+                    p.innerHTML="<b style='color:red;'>"+pers[0].pto+"</b>"+":"+"<b style='color:blue;'>"+pers[1].pto+"</b>";
                 }
             }
             function control(){
-                ball.change_color( ( (ball.x > 2)?"red":"blue" ) );
-                const limite_1=ball.y+80;
-                const limite_2=ball.y+130;
-                if (
-                    ball.x< -76 &&
-                    pers[0].y > limite_1 &&
-                    pers[0].y < limite_2
-                ){
-                    ball.dirs['x']=1;
-                    SOUND(500,0.05);
-                    SOUND(450,0.05);
-                    SOUND(600,0.05);
-                }
-                if (
-                    ball.x>145 &&
-                    pers[1].y >limite_1 &&
-                    pers[1].y < limite_2
-                ){
-                    ball.dirs['x']=0;
-                    SOUND(500,0.05);
-                    SOUND(450,0.05);
-                    SOUND(600,0.05);
+                const mw=ball.w>>1;
+                const mh=ball.h>>1;
+                if (ball.x<center_width){ //Si es menor al la mitad del tablero
+                    if (ball.x-mw<pers[0].x && pers[0].y + pers[0].h > ball.y - mh && pers[0].y < ball.y + mh){
+                        ball.dirs['x']=1;
+                        SOUND(500,0.05,if_sound);
+                        SOUND(450,0.05,if_sound);
+                        SOUND(600,0.05,if_sound);
+                    }
+                    ball.change_color("blue","lightcyan");
+                }else{ //Si es mayor
+                     if(ball.x + mw > pers[1].x && pers[1].y + pers[1].h > ball.y - mh && pers[1].y < ball.y + mh){
+                        ball.dirs['x']=0;
+                        SOUND(500,0.05,if_sound);
+                        SOUND(450,0.05,if_sound);
+                        SOUND(600,0.05,if_sound);
+                    }
+                    ball.change_color("red");
                 }
             }/*Optimizar mas este codigo.*/
             //Estas funciones serán llamada por uno de los botones. Claro los botones no van a llamar a todas las funciones, pero si a una de ellas.
             function reinicio(){
                 pers[0].pto=0;
                 pers[1].pto=0;
-                ball.x=30;
-                ball.y=38;
+                ball.x=center_width;
+                ball.y=center_height;
                 ball.dirs={'x':random(1),'y':random(1)};
+                if (if_pausa)
+                    pausa(document.getElementById("pausa"));
             }
-            function pausa(button,set){
-                clearInterval(set);
+            function pausa(button){
+                let txt_p=document.getElementById("text-pause");
+                if_pausa=!if_pausa;
+                if (!if_pausa){
+                    button.innerHTML="pausa";
+                    txt_p.style.display="none";
+                    return;
+                }
                 button.innerHTML="resumen";
-                button.setAttribute("onclick","set=resumen(this,times);");
-                if_pausa=true;
-                D("text-pause").style.display="inline";
-            }
-            function resumen(button,time){
-                set=setInterval(game,time);
-                button.innerHTML="pausa";
-                button.setAttribute("onclick","pausa(this,set);");
-                if_pausa=false;
-                D("text-pause").style.display="none";
-                return set;
+                txt_p.style.display="inline";
             }
             function jugador(i){
-                //Si el personaje actual sobre pasa al borde: entonces lo ponemos al final. 
-                pers[i].y=( pers[i].y <1 )? 265 : pers[i].y-50;
+                //Si el personaje actual sobre pasa al borde: entonces lo ponemos al final.
+                pers[i].y-=gamer_height;
+                if (pers[i].y<-(gamer_height>>1)){
+                    pers[i].y=TABLE_HEIGHT-gamer_height;
+                }else if (pers[i].y>TABLE_HEIGHT){
+                    pers[i].y=0+gamer_height;
+                }
                 pers[i].obj.style.top=pers[i].y+"px";
             }
             
