@@ -28,10 +28,11 @@
             </p>
         </fieldset>
         <button type="button" id="boton1" onclick="jugador(0)" style="width:110px;height:80px;color:green;">
-            1-Arriba.
+            <b>1-Arriba.</b>
         </button>
-        <button type="button" onclick="jugador(1)" id="boton2" style="width:110px;height:80px;color:lightcyan;">
-            2-Arriba
+        <button type="button" onclick="if(!ifsing_ply)jugador(1)" id="boton2" style="width:110px;height:80px;color:lightcyan;">
+            <b>2-Arriba</b>
+            <img class="lentes" src="./lentes.svg" width="50" height="50" />
         </button>
         <button type="button" id="pausa" onclick="pausa(this);">
             Pausa
@@ -55,7 +56,7 @@
                 </td>
                 <td>
                     <label for="mute">
-                        mute
+                        Sound?
                     </label>
                 </td>
             </tr>
@@ -69,38 +70,47 @@
                 <td>
                     <input type="checkbox" id="mute" onclick="if_sound=!if_sound"/>
                 </td>
+                <td>
+                    <button id="gamer_1" onclick="single_player(this);">
+                        1-gamer?
+                    </button>
+                </td>
             </tr>
         </table>
         <script>
             /*Para variables*/
             "uses strict";
-            const TABLE_WIDTH=280;
+            const TABLE_WIDTH=280;//Definimos las dimensiones base
             const TABLE_HEIGHT=309;
-            const center_width=TABLE_WIDTH/2;
+            const center_width=TABLE_WIDTH/2;//Definimos el centro
             const center_height=TABLE_HEIGHT/2;
-            const gamer_width=regla_de_3(100,TABLE_WIDTH,5);
+            const gamer_width=regla_de_3(100,TABLE_WIDTH,5);//Definimos las dimensiones de las raquetas.
             const gamer_height=regla_de_3(100,TABLE_HEIGHT,20);
-            const ball_width=regla_de_3(100,TABLE_WIDTH,9);
+            const ball_width=regla_de_3(100,TABLE_WIDTH,9);//Definimos las dimensiones de la pelota.
             const ball_height=regla_de_3(100,TABLE_HEIGHT,9);
-            const gamer_center=gamer_width/2;
-            const bad_speed=90;
+            const bad_speed=90;//Velocidades para que el jugador personalize.
             const good_speed=140;
             var pers=[
                 //Solo es necesario dos variables.
                 new dim(gamer_width,center_height,gamer_width,gamer_height,D("gamer-red") ),/*Rojo*/
                 new dim(TABLE_WIDTH-gamer_width,center_height,gamer_width,gamer_height,D("gamer-blue") )/*Azul.*/
             ];
-            var times=0.01;//Lento.
-            var p=document.querySelector("p");
+            var times=0.01;//Tiempo por fotogramas.
+            var p=document.querySelector("p");//Puntaje
             var ball=new dim(center_width,center_height,ball_width,ball_height,D("ball"),times,bad_speed );
-            var set;
-            var game;
+            var set;//Intervalo actual.
+            var game;//Para la funcion principal
             var if_pausa=false;
             var if_sound=false;
+            var ifsing_ply=false;//Si es falso se dejara el modo dos jugadores.
+            /**
+             * Cambia la distancia que puede viajar la pelota por fotogramas
+             * @param  {[type]} char L para lento, lo demas rapido.
+             */
             function change_speed(char){
                 ball.change_dist(times,(char=='L')?bad_speed:good_speed)
                 ball.obj.innerHTML=char;
-            }/*Recuerda puedes hacer: ball.dir para reemplazar dirs.*/
+            }
             function main(){//Solo incluyo esta funcion por costumbre con C. Realmente no es necesaria.
                 let table=document.getElementById("canva-game");
                 table.style.width=TABLE_WIDTH+"px";
@@ -114,9 +124,10 @@
                     control();
                     ball.move();
                 }
+                document.addEventListener("keydown", key_run);
                 set=setInterval(game,times*1000);//Iniciamos el juego.
-            }//Sera llamada por body;
-            
+            }
+            ////Mover la pelota verticalmente.
             function subir(){
                 if ( ball.y < 0 )
                     ball.dirs['y']=true;
@@ -124,22 +135,25 @@
                      ball.dirs['y']=false;
                 ball.y+=( ball.dirs['y'] )?ball.dist:-ball.dist;
             }
-            
+            ////Mover la pelota lateralmente
             function der(){
                 ball.x+=( ball.dirs['x'] )?ball.dist:-ball.dist;
-                if ( ball.x < 0 || ball.x > TABLE_WIDTH){
+                if ( ball.x < 0 || ball.x > TABLE_WIDTH){//Se sale de la pantalla.
                     let i=(ball.x < 0)?1:0;
                     ball.x=center_width;
                     ball.y=center_height;
                     ball.dirs['x']=i;
                     pers[i].pto++;
+                    //Sonido feo
                     SOUND(300,0.05,if_sound);
                     SOUND(200,0.05,if_sound);
                     SOUND(500,0.05,if_sound);
                     SOUND(100,0.05,if_sound);
+                    //Actualizamos el marcador.
                     p.innerHTML="<b style='color:red;'>"+pers[0].pto+"</b>"+":"+"<b style='color:blue;'>"+pers[1].pto+"</b>";
                 }
             }
+            ////Comprobamos si la pelota toco raqueta.
             function control(){
                 const mw=ball.w>>1;
                 const mh=ball.h>>1;
@@ -160,8 +174,8 @@
                     }
                     ball.change_color("red");
                 }
-            }/*Optimizar mas este codigo.*/
-            //Estas funciones serán llamada por uno de los botones. Claro los botones no van a llamar a todas las funciones, pero si a una de ellas.
+            }
+            ////Reiniciamos el juego.
             function reinicio(){
                 pers[0].pto=0;
                 pers[1].pto=0;
@@ -171,6 +185,7 @@
                 if (if_pausa)
                     pausa(document.getElementById("pausa"));
             }
+            ////Se paua el juego
             function pausa(button){
                 let txt_p=document.getElementById("text-pause");
                 if_pausa=!if_pausa;
@@ -182,7 +197,9 @@
                 button.innerHTML="resumen";
                 txt_p.style.display="inline";
             }
+            ////Movemos el jugador 0 o 1
             function jugador(i){
+                if (if_pausa)return;
                 //Si el personaje actual sobre pasa al borde: entonces lo ponemos al final.
                 pers[i].y-=gamer_height;
                 if (pers[i].y<-(gamer_height>>1)){
@@ -192,8 +209,66 @@
                 }
                 pers[i].obj.style.top=pers[i].y+"px";
             }
-            
-            
+            ////Activamos el single player:D
+            function single_player(b){
+                let img=document.getElementsByClassName("lentes")[0];
+                let txt=document.querySelector("#boton2 b");
+                if (!ifsing_ply){ifsing_ply=true;
+                    b.innerHTML="2-gamer?"
+
+                    txt.style.display="none";
+                    
+                    img.style.display="inline";
+                    img.style.animation="bajar 2s";
+                    
+                    pers[1].y=0;
+                    handle=()=>{
+                        if (!ifsing_ply)return;
+                        pers[1].h+=1;
+                        if (pers[1].h<TABLE_HEIGHT){
+                            setTimeout(handle,0.01*1000);
+                        }
+                        pers[1].obj.style.height=pers[1].h+"px";
+                        pers[1].obj.style.top="0px";
+                    };
+                    setTimeout(handle,0.01*1000);
+                }else{
+                    b.innerHTML="1-gamer?"
+
+                    txt.style.display="inline";
+
+                    ifsing_ply=false;
+
+                    img.style.animation="subir 2s";
+                    setTimeout(()=>{
+                        if(ifsing_ply)return;
+                        img.style.display="none";
+                    },1990);
+                    pers[1].h=gamer_height;
+                    pers[1].obj.style.height=pers[1].h+"px";
+                    pers[1].obj.style.top=center_height+"px";
+                }
+            }
+            /**
+             * Tratamos el teclado:D
+             * @param  {event} e Evento keydown
+             */
+            function key_run(e){
+                switch (event.keyCode) {
+                    case 38: // Arriba
+                        if(ifsing_ply)return;//Para no tener error en el modo pro
+                        jugador(1);
+                        break;
+                    case 87://W o w
+                    case 119:
+                        jugador(0);
+                        break;
+                    case 80://P o p
+                    case 112:
+                        if_pausa=!if_pausa;
+                        break;
+                }
+            }
         </script>
     </body>
 </html>

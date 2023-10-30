@@ -62,7 +62,7 @@ fieldset{
 }
 #pausa{
     left:132px;
-  top:400px;
+  top:440px;
 }
 #Reinicio{
     width:50px;
@@ -83,4 +83,28 @@ table{
 }
 td{
     border:2px solid white;
+}
+/* Establecer la posición inicial de la imagen svg */
+button .lentes {
+  position: absolute;
+  display: none;
+  top: 0px; /* Poner la imagen por encima del botón */
+  left: 50%; /* Centrar la imagen horizontalmente */
+  transform: translateX(-50%); /* Ajustar la posición para que coincida con el centro del botón */
+}
+@keyframes bajar {
+  from {
+    top: -100px; /* Posición inicial */
+  }
+  to {
+    top: 0; /* Posición final */
+  }
+}
+@keyframes subir {
+  from {
+    top: 0px; /* Posición inicial */
+  }
+  to {
+    top: -100px; /* Posición final */
+  }
 }
